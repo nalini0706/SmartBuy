@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartBuy — AI Price Comparison</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="hero">
+    <div class="container">
+      <h1>🛒 SmartBuy</h1>
+      <p class="tagline">AI-Based Product Price Comparison &amp; Deal Recommendation System</p>
+
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Search a product… e.g. iPhone 16, Redmi Note 14">
+        <button id="searchBtn">Search</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <h2 class="section-title">Browse Products</h2>
+    <div id="productGrid" class="product-grid">
+      {% for p in products %}
+      <a class="product-card" href="/product/{{ p.product_id }}">
+        <div class="emoji">{{ p.image_emoji }}</div>
+        <div class="name">{{ p.name }}</div>
+        <div class="category">{{ p.category }}</div>
+      </a>
+      {% endfor %}
+    </div>
+    <p id="noResults" class="no-results" style="display:none;">No products matched your search.</p>
+  </main>
+
+  <footer class="container">
+    <p>SmartBuy · Prices shown are sample data for demonstration.</p>
+  </footer>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

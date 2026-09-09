@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ product.name }} — SmartBuy</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+</head>
+<body>
+  <header class="hero small">
+    <div class="container">
+      <a href="/" class="back-link">← Back to search</a>
+      <h1>{{ product.image_emoji }} {{ product.name }}</h1>
+      <p class="tagline">{{ product.category }}</p>
+    </div>
+  </header>
+
+  <main class="container">
+
+    {% set best_offer = offers | selectattr("is_best_deal") | list | first %}
+    {% set cheapest = offers | selectattr("is_best_price") | list | first %}
+
+    <div class="highlight-row">
+      <div class="highlight-card price">
+        <div class="label">🏆 Best Price</div>
+        <div class="value">₹{{ "{:,.0f}".format(cheapest.current_price) }}</div>
+        <div class="sub">at {{ cheapest.store_name }}</div>
+      </div>
+      <div class="highlight-card deal">
+        <div class="label">⭐ Best Overall Deal</div>
+        <div class="value">{{ best_offer.store_name }}</div>
+        <div class="sub">Score {{ best_offer.deal_score }}/100 · ₹{{ "{:,.0f}".format(best_offer.current_price) }} · {{ best_offer.rating }}★</div>
+      </div>
+      <div class="highlight-card trend">
+        <div class="label">📊 30-Day Trend</div>
+        {% if trend.direction == "down" %}
+          <div class="value down">↓ {{ trend.change_pct | abs }}%</div>
+          <div class="sub">Prices falling — good time to buy</div>
+        {% elif trend.direction == "up" %}
+          <div class="value up">↑ {{ trend.change_pct }}%</div>
+          <div class="sub">Prices rising recently</div>
+        {% else %}
+          <div class="value flat">→ stable</div>
+          <div class="sub">No major change recently</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <h2 class="section-title">💰 Price Comparison</h2>
+    <div class="table-wrap">
+    <table class="price-table">
+      <thead>
+        <tr>
+          <th>Store</th>
+          <th>Price</th>
+          <th>Difference</th>
+          <th>Discount</th>
+          <th>Rating</th>
+          <th>Delivery</th>
+          <th>Deal Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for o in offers %}
+        <tr class="{{ 'row-best-price' if o.is_best_price else '' }} {{ 'row-best-deal' if o.is_best_deal else '' }} {{ 'row-oos' if not o.in_stock else '' }}">
+          <td>
+            {{ o.store_name }}
+            {% if o.is_best_price %}<span class="badge badge-price">Cheapest</span>{% endif %}
+            {% if o.is_best_deal %}<span class="badge badge-deal">Best Deal</span>{% endif %}
+            {% if not o.in_stock %}<span class="badge badge-oos">Out of stock</span>{% endif %}
+          </td>
+          <td class="price-cell">₹{{ "{:,.0f}".format(o.current_price) }}</td>
+          <td>
+            {% if o.price_diff_vs_best == 0 %}
+              —
+            {% elif o.price_diff_vs_best > 0 %}
+              <span class="diff-more">₹{{ "{:,.0f}".format(o.price_diff_vs_best) }} more</span>
+            {% else %}
+              <span class="diff-less">₹{{ "{:,.0f}".format(-o.price_diff_vs_best) }} cheaper</span>
+            {% endif %}
+          </td>
+          <td>{% if o.discount_pct > 0 %}<span class="discount-tag">{{ o.discount_pct }}% off</span>{% else %}—{% endif %}</td>
+          <td>{{ o.rating }} ★ <span class="reviews">({{ o.review_count }})</span></td>
+          <td>{{ o.delivery_days }} day{{ 's' if o.delivery_days != 1 else '' }}</td>
+          <td><div class="score-bar"><div class="score-fill" style="width:{{ o.deal_score }}%"></div></div> {{ o.deal_score }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+
+    <h2 class="section-title">📊 Price History (30 days)</h2>
+    <div class="chart-card">
+      <canvas id="priceChart" height="90"></canvas>
+    </div>
+
+    <div class="two-col">
+      <section class="panel">
+        <h2 class="section-title">🔔 Price Drop Alert</h2>
+        <p class="panel-desc">Tell us your target price — we'll flag it here once any store hits it (demo checks instantly against current prices).</p>
+        <form id="alertForm">
+          <input type="hidden" id="alertProductId" value="{{ product.product_id }}">
+          <label>Target price (₹)</label>
+          <input type="number" id="targetPrice" placeholder="e.g. 65000" required>
+          <label>Email (optional)</label>
+          <input type="email" id="alertEmail" placeholder="you@example.com">
+          <button type="submit">Set Alert</button>
+        </form>
+        <div id="alertResult" class="alert-result"></div>
+      </section>
+
+      <section class="panel">
+        <h2 class="section-title">🏷️ Discount Calculator</h2>
+        <p class="panel-desc">Check the real discount on any listed price.</p>
+        <form id="discountForm">
+          <label>Original price (₹)</label>
+          <input type="number" id="origPrice" required>
+          <label>Final / sale price (₹)</label>
+          <input type="number" id="finalPrice" required>
+          <button type="submit">Calculate</button>
+        </form>
+        <div id="discountResult" class="discount-result"></div>
+      </section>
+    </div>
+
+  </main>
+
+  <footer class="container">
+    <p>SmartBuy · Prices shown are sample data for demonstration.</p>
+  </footer>
+
+<script>
+  window.PRICE_HISTORY = {{ history | tojson }};
+</script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
