@@ -68,7 +68,7 @@ def decorate_products(rows):
     for row in rows:
         product = dict(row)
         product["image_url"] = product_image_url(product["category"], product["name"])
-        product["image_fallback"] = category_image_url(product["category"])
+        product["image_fallback"] = f"{category_image_url(product['category'])}&v=6"
         product["best_price"] = product["best_price"] or 0
         product["rating"] = round(product["rating"] or 0, 1)
         product["discount_pct"] = int(product["discount_pct"] or 0)
@@ -162,6 +162,21 @@ def category_image_url(category):
     return category_images["Audio"]
 
 
+def product_highlights(name, category, specs):
+    highlights = {
+        "Smartphones": ["Bright everyday display", "Reliable all-day battery", "Fast performance for apps and photos"],
+        "Laptops": ["Comfortable productivity setup", "Fast solid-state storage", "Built for work and multitasking"],
+        "Audio": ["Clear, detailed sound", "Comfortable for longer listening", "Wireless convenience"],
+        "TVs": ["Sharp 4K entertainment", "Smart streaming platform", "Vivid color and contrast"],
+        "Cameras": ["Detailed photo capture", "Steady high-quality video", "Easy sharing and connectivity"],
+        "Gaming": ["Responsive performance", "Immersive entertainment", "Designed for longer sessions"],
+        "Tablets & E-readers": ["Lightweight everyday design", "Comfortable reading and viewing", "Portable battery-friendly use"],
+        "Wearables": ["Useful activity tracking", "Quick glance notifications", "Comfortable daily wear"],
+        "Home": ["Practical everyday automation", "Simple controls", "Designed for convenient routines"],
+    }
+    return highlights.get(category, ["Carefully selected product", "Useful everyday features", "Strong value across stores"])
+
+
 def get_offers_for_product(product_id):
     conn = get_connection()
     rows = conn.execute(
@@ -211,6 +226,7 @@ def get_product(product_id):
         product["specs"] = json.loads(product["specs"] or "{}")
     except (TypeError, ValueError):
         product["specs"] = {}
+    product["highlights"] = product_highlights(product["name"], product["category"], product["specs"])
     return product
 
 

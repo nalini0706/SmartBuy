@@ -28,7 +28,7 @@
     {% set cheapest = offers | selectattr("is_best_price") | list | first %}
 
     <section class="product-showcase">
-      <div class="product-art"><img src="{{ product.image_url }}" data-fallback="{{ product.image_fallback }}" onerror="this.onerror=null;this.src=this.dataset.fallback" alt="{{ product.name }}"></div>
+      <div class="product-art"><img src="{{ product.image_url }}" data-fallback="{{ product.image_fallback }}" data-final-fallback="{{ url_for('static', filename='product-placeholder.svg') }}" onerror="if(this.dataset.fallback!==this.dataset.finalFallback){this.src=this.dataset.fallback;this.dataset.fallback=this.dataset.finalFallback}else{this.onerror=null;this.src=this.dataset.finalFallback}" alt="{{ product.name }}"></div>
       <div class="product-copy">
         <span class="product-kicker">{{ product.category }} · SmartBuy selection</span>
         <h2>{{ product.name }}</h2>
@@ -38,6 +38,9 @@
           <span>✓ Deal score included</span>
           <span>✓ Price history tracked</span>
         </div>
+        <ul class="product-highlights">
+          {% for highlight in product.highlights %}<li>{{ highlight }}</li>{% endfor %}
+        </ul>
       </div>
     </section>
 

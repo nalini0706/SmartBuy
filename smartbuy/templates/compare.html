@@ -18,7 +18,7 @@
     <div class="compare-grid">
       {% for item in comparisons %}
       <article class="compare-card">
-        <div class="compare-image"><img src="{{ item.product.image_url }}" data-fallback="{{ item.product.image_fallback }}" onerror="this.onerror=null;this.src=this.dataset.fallback" alt="{{ item.product.name }}"><span>{{ item.product.category }}</span></div>
+        <div class="compare-image"><img src="{{ item.product.image_url }}" data-fallback="{{ item.product.image_fallback }}" data-final-fallback="{{ url_for('static', filename='product-placeholder.svg') }}" onerror="if(this.dataset.fallback!==this.dataset.finalFallback){this.src=this.dataset.fallback;this.dataset.fallback=this.dataset.finalFallback}else{this.onerror=null;this.src=this.dataset.finalFallback}" alt="{{ item.product.name }}"><span>{{ item.product.category }}</span></div>
         <div class="compare-body"><h2>{{ item.product.name }}</h2><div class="card-rating">★ {{ item.product.rating }}</div><p class="compare-label">Best current price</p><strong class="compare-price">₹{{ "{:,.0f}".format(item.best.current_price) if item.best else "N/A" }}</strong><p class="compare-store">at {{ item.best.store_name if item.best else "No offers" }}</p><a class="compare-detail-link" href="{{ url_for('product_detail', product_id=item.product.product_id) }}">View full details →</a></div>
       </article>
       {% endfor %}
