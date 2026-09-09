@@ -6,6 +6,8 @@ in scraper.py for real API/scraping calls that write into the same tables.
 """
 import random
 import datetime
+import json
+from urllib.parse import quote_plus
 from database import get_connection, init_db
 
 STORES = [
@@ -24,11 +26,41 @@ PRODUCTS = [
     ("Samsung Galaxy S24", "Smartphones", "📱", 74999),
     ("Redmi Note 14", "Smartphones", "📱", 18999),
     ("OnePlus 13", "Smartphones", "📱", 64999),
+    ("Samsung Galaxy Z Flip 6", "Smartphones", "📱", 109999),
+    ("Nothing Phone 3", "Smartphones", "📱", 44999),
     ("MacBook Air M3", "Laptops", "💻", 114900),
     ("Dell XPS 13", "Laptops", "💻", 99990),
+    ("HP Spectre x360", "Laptops", "💻", 124990),
+    ("Lenovo Yoga Slim 7", "Laptops", "💻", 84990),
     ("boAt Airdopes 141", "Audio", "🎧", 1299),
     ("Sony WH-1000XM5", "Audio", "🎧", 29990),
+    ("Apple AirPods Pro 2", "Audio", "🎧", 24900),
+    ("Bose QuietComfort Ultra", "Audio", "🎧", 34900),
+    ("Sennheiser Momentum 4", "Audio", "🎧", 29990),
+    ("JBL Live Beam 3", "Audio", "🎧", 8999),
     ("Samsung 55-inch QLED TV", "TVs", "📺", 64990),
+    ("Sony Bravia 55-inch OLED TV", "TVs", "📺", 119990),
+    ("LG 65-inch NanoCell TV", "TVs", "📺", 79990),
+    ("TCL 55-inch 4K Google TV", "TVs", "📺", 42990),
+    ("Canon EOS R50", "Cameras", "📷", 68990),
+    ("GoPro HERO12 Black", "Cameras", "📷", 44990),
+    ("Sony Alpha A6400", "Cameras", "📷", 74990),
+    ("DJI Osmo Pocket 3", "Cameras", "📷", 51990),
+    ("PlayStation 5 Slim", "Gaming", "🎮", 54990),
+    ("ASUS ROG Gaming Laptop", "Gaming", "💻", 139990),
+    ("Xbox Series X", "Gaming", "🎮", 52990),
+    ("Nintendo Switch OLED", "Gaming", "🎮", 31990),
+    ("Kindle Paperwhite", "Tablets & E-readers", "📖", 14999),
+    ("Apple Watch Series 10", "Wearables", "⌚", 46900),
+    ("Dyson V12 Detect Slim", "Home", "🏠", 52900),
+    ("Google Pixel 9", "Smartphones", "📱", 79999),
+    ("Xiaomi Pad 7", "Tablets & E-readers", "📱", 29999),
+    ("Samsung Galaxy Tab S10", "Tablets & E-readers", "📱", 74999),
+    ("OnePlus Pad 2", "Tablets & E-readers", "📱", 39999),
+    ("Samsung Galaxy Watch 7", "Wearables", "⌚", 33999),
+    ("Fitbit Charge 6", "Wearables", "⌚", 12999),
+    ("Philips Air Fryer XL", "Home", "🏠", 12999),
+    ("iRobot Roomba i5", "Home", "🏠", 39990),
 ]
 
 
@@ -38,6 +70,35 @@ def _price_variation(base_price, store_index):
     pct = random.uniform(-0.06, 0.05)  # -6% to +5% around base
     price = base_price * (1 + pct)
     return round(price / 10) * 10  # round to nearest 10
+
+
+def _specifications(name, category):
+    templates = {
+        "Smartphones": {"Display": "6.1-inch OLED", "Storage": "128 GB", "Battery": "All-day battery", "Warranty": "1 year"},
+        "Laptops": {"Display": "15.6-inch display", "Memory": "16 GB RAM", "Storage": "512 GB SSD", "Warranty": "1 year"},
+        "Audio": {"Type": "Wireless", "Connectivity": "Bluetooth 5.3", "Battery": "Up to 30 hours", "Warranty": "1 year"},
+        "TVs": {"Display": "4K Ultra HD", "Refresh rate": "120 Hz", "Smart platform": "Google TV", "Warranty": "2 years"},
+        "Cameras": {"Resolution": "24.2 MP", "Video": "4K recording", "Connectivity": "Wi-Fi and Bluetooth", "Warranty": "1 year"},
+        "Gaming": {"Resolution": "Up to 4K", "Storage": "1 TB", "Connectivity": "Wi-Fi 6", "Warranty": "1 year"},
+        "Tablets & E-readers": {"Display": "11-inch display", "Storage": "128 GB", "Battery": "Up to 12 hours", "Warranty": "1 year"},
+        "Wearables": {"Display": "AMOLED display", "Water resistance": "5 ATM", "Battery": "Up to 7 days", "Warranty": "1 year"},
+        "Home": {"Power": "1400 W", "Capacity": "Large capacity", "Control": "Smart controls", "Warranty": "2 years"},
+    }
+    specs = dict(templates.get(category, {"Condition": "New", "Warranty": "1 year"}))
+    specs["Model"] = name
+    return json.dumps(specs)
+
+
+def _store_url(store_name, product_name):
+    query = quote_plus(product_name)
+    domains = {
+        "Amazon": f"https://www.amazon.in/s?k={query}",
+        "Flipkart": f"https://www.flipkart.com/search?q={query}",
+        "Croma": f"https://www.croma.com/searchB?q={query}",
+        "Reliance Digital": f"https://www.reliancedigital.in/search?q={query}",
+        "Vijay Sales": f"https://www.vijaysales.com/search/{query}",
+    }
+    return domains[store_name]
 
 
 def seed():
@@ -57,8 +118,8 @@ def seed():
 
     for name, category, emoji, base_price in PRODUCTS:
         cur.execute(
-            "INSERT INTO products (name, category, image_emoji) VALUES (?, ?, ?)",
-            (name, category, emoji),
+            "INSERT INTO products (name, category, image_emoji, specs) VALUES (?, ?, ?, ?)",
+            (name, category, emoji, _specifications(name, category)),
         )
         product_id = cur.lastrowid
 
@@ -82,10 +143,10 @@ def seed():
             cur.execute(
                 """INSERT INTO prices
                    (product_id, store_id, original_price, current_price,
-                    rating, review_count, in_stock)
-                   VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                          rating, review_count, in_stock, store_url)
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
                 (product_id, store_id, original_price, current_price,
-                 rating, review_count, in_stock),
+                      rating, review_count, in_stock, _store_url(store_name, name)),
             )
 
             # Generate 30 days of price history with gentle random walk

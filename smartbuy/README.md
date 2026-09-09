@@ -13,6 +13,13 @@ Flow: **User → Search Product → Collect Prices → Compare → Analyze Deals
 | 🏷️ Discount calculator | `/api/discount-calc` (GET) |
 | ⭐ Ratings & reviews per store | seeded in `prices` table, shown in comparison table |
 | 🏆 Best deal recommendation (not just cheapest) | `recommend.py` — weighted score of price + rating + delivery speed + discount |
+| 🔐 Login and signup | Flask sessions with hashed passwords |
+| ❤️ Wishlist and dashboard | `/dashboard`, `/api/wishlist` |
+| 📊 Compare up to three products | `/compare?ids=1,2,3` |
+| 📋 Product specifications | Category-specific specs on product pages |
+| 🛍️ Store purchase links | Five store search links per product |
+| 🖼️ Product-specific catalog photos | Exact product-name image mapping with category fallback |
+| 📦 40 products across 9 categories | Seeded by `seed_data.py` |
 
 ## Tech stack
 
@@ -70,6 +77,14 @@ Right now `seed_data.py` generates realistic sample prices/ratings/history so th
 
 The database schema (`database.py`) already supports all of this — no changes needed to the web app itself.
 
+## Main routes
+
+- `/` — searchable catalog and category filters
+- `/product/<id>` — details, specifications, offers, links, chart, and alerts
+- `/dashboard` — wishlist and alerts
+- `/compare?ids=1,2,3` — side-by-side comparison
+- `/login`, `/signup`, `/logout` — authentication
+
 ## Project structure
 
 ```
@@ -81,7 +96,11 @@ smartbuy/
 ├── requirements.txt
 ├── templates/
 │   ├── index.html       # Search / browse page
-│   └── results.html     # Comparison table + chart + alert + discount calc
+│   ├── results.html     # Product detail and price comparison
+│   ├── dashboard.html   # Wishlist and alerts
+│   ├── compare.html     # Product comparison
+│   ├── login.html       # Sign in
+│   └── signup.html      # Create account
 └── static/
     ├── style.css
     └── script.js

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign in — SmartBuy</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="auth-page">
+  <main class="auth-shell">
+    <section class="auth-intro">
+      <a class="brand-mark" href="{{ url_for('login') }}">🛒 SmartBuy</a>
+      <div>
+        <p class="eyebrow">Smarter shopping starts here</p>
+        <h1>Find the best deal before you buy.</h1>
+        <p class="auth-copy">Compare trusted stores, track price movement, and make every purchase with confidence.</p>
+      </div>
+    </section>
+
+    <section class="auth-card">
+      <p class="eyebrow">Welcome back</p>
+      <h2>Sign in to SmartBuy</h2>
+      <p class="auth-muted">Use your account to continue comparing prices.</p>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endwith %}
+      <form method="post" class="auth-form">
+        <label for="email">Email address</label>
+        <input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required>
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Your password" required>
+        <button type="submit">Sign in <span aria-hidden="true">→</span></button>
+      </form>
+      <p class="auth-switch">New to SmartBuy? <a href="{{ url_for('signup') }}">Create an account</a></p>
+    </section>
+  </main>
+</body>
+</html>

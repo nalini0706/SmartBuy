@@ -7,28 +7,83 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <header class="hero">
+  <header class="hero home-hero">
     <div class="container">
-      <h1>🛒 SmartBuy</h1>
-      <p class="tagline">AI-Based Product Price Comparison &amp; Deal Recommendation System</p>
-
-      <div class="search-box">
-        <input type="text" id="searchInput" placeholder="Search a product… e.g. iPhone 16, Redmi Note 14">
-        <button id="searchBtn">Search</button>
+      <div class="topbar">
+        <a class="site-brand" href="{{ url_for('index') }}"><span class="brand-icon">S</span> SmartBuy</a>
+        <div class="account-bar">
+          <span class="welcome-name">Hello, {{ session.get('user_name') }}</span>
+          <a href="{{ url_for('dashboard') }}">My space</a>
+          <a href="{{ url_for('logout') }}">Sign out</a>
+        </div>
+      </div>
+      <div class="hero-content">
+        <div class="hero-copy">
+          <p class="eyebrow hero-eyebrow">Smarter shopping starts here</p>
+          <h1>Make every purchase<br><em>count.</em></h1>
+          <p class="tagline">Compare trusted stores, spot real deals, and buy with confidence.</p>
+          <div class="search-box">
+            <span class="search-icon" aria-hidden="true">⌕</span>
+            <input type="text" id="searchInput" placeholder="Search phones, laptops, headphones..." aria-label="Search products">
+            <button id="searchBtn">Find deals <span aria-hidden="true">→</span></button>
+          </div>
+          <div class="hero-points">
+            <span><strong>{{ products|length }}</strong> products</span><span><strong>5</strong> trusted stores</span><span><strong>Live</strong> deal scoring</span>
+          </div>
+        </div>
+        <div class="hero-note" aria-hidden="true">
+          <div class="hero-note-icon">↗</div>
+          <strong>Buy smarter</strong>
+          <span>Know the best price before you check out.</span>
+        </div>
       </div>
     </div>
   </header>
 
   <main class="container">
-    <h2 class="section-title">Browse Products</h2>
+    <section class="category-strip" aria-label="Shop by category">
+      <div>
+        <p class="eyebrow">Explore</p>
+        <h2>Shop by category</h2>
+      </div>
+      <div class="category-links">
+        {% for category in categories %}
+        <button class="category-link" data-category="{{ category }}"><span>{{ {'Smartphones': '◉', 'Laptops': '▣', 'Audio': '◌', 'TVs': '▤'}.get(category, '◇') }}</span>{{ category }}</button>
+        {% endfor %}
+      </div>
+    </section>
+
+    <div class="catalog-heading">
+      <div>
+        <p class="eyebrow">Curated for you</p>
+        <h2 class="section-title">Popular deals</h2>
+      </div>
+      <span id="resultCount" class="result-count">{{ products|length }} products</span>
+    </div>
+    <div class="category-chips" aria-label="Filter products by category">
+      <button class="category-chip active" data-category="">All products</button>
+      {% for category in categories %}<button class="category-chip" data-category="{{ category }}">{{ category }}</button>{% endfor %}
+    </div>
     <div id="productGrid" class="product-grid">
       {% for p in products %}
       <a class="product-card" href="/product/{{ p.product_id }}">
-        <div class="emoji">{{ p.image_emoji }}</div>
-        <div class="name">{{ p.name }}</div>
-        <div class="category">{{ p.category }}</div>
+        {% if p.discount_pct >= 10 %}<span class="deal-badge">-{{ p.discount_pct }}%</span>{% endif %}
+        <button class="wishlist-toggle {{ 'saved' if p.product_id in wishlist_ids else '' }}" data-product-id="{{ p.product_id }}" aria-label="{{ 'Remove from wishlist' if p.product_id in wishlist_ids else 'Add to wishlist' }}">{{ '♥' if p.product_id in wishlist_ids else '♡' }}</button>
+        <div class="product-image"><img src="{{ p.image_url }}" alt="{{ p.name }}" loading="lazy"><span class="image-category">{{ p.category }}</span></div>
+        <div class="product-card-body">
+          <div class="name">{{ p.name }}</div>
+          <div class="card-rating">★ {{ p.rating }} <span>· Compare across stores</span></div>
+          <div class="card-price-label">Best price from</div>
+          <div class="card-price">₹{{ "{:,.0f}".format(p.best_price) }} <span>→</span></div>
+          <button class="compare-toggle" data-product-id="{{ p.product_id }}">Compare</button>
+        </div>
       </a>
       {% endfor %}
+    </div>
+    <div id="compareTray" class="compare-tray" hidden>
+      <span><strong id="compareCount">0</strong> products selected</span>
+      <a id="compareLink" href="/compare">Compare now <span aria-hidden="true">→</span></a>
+      <button id="clearCompare" type="button">Clear</button>
     </div>
     <p id="noResults" class="no-results" style="display:none;">No products matched your search.</p>
   </main>

@@ -13,6 +13,15 @@ Flow: **User → Search Product → Collect Prices → Compare → Analyze Deals
 | 🏷️ Discount calculator | `/api/discount-calc` (GET) |
 | ⭐ Ratings & reviews per store | seeded in `prices` table, shown in comparison table |
 | 🏆 Best deal recommendation (not just cheapest) | `recommend.py` — weighted score of price + rating + delivery speed + discount |
+| 🔐 User authentication | `/login`, `/signup`, `/logout` with hashed passwords and protected routes |
+| ❤️ Personal wishlist | `/api/wishlist`, `/dashboard` |
+| 📊 Product comparison | Select up to three products and open `/compare` |
+| 👤 User dashboard | `/dashboard` with saved products and price alerts |
+| 📋 Product specifications | Category-specific specifications on every product page |
+| 🛍️ Store purchase links | Search links for Amazon, Flipkart, Croma, Reliance Digital, and Vijay Sales |
+| 🖼️ Product-specific photos | Product-name image mapping with category fallback for future products |
+| 🧭 Category browsing | Smartphones, laptops, audio, TVs, cameras, gaming, tablets, wearables, and home |
+| 📦 Expanded catalog | 40 seeded products across 9 categories |
 
 ## Tech Stack
 
@@ -21,6 +30,7 @@ Flow: **User → Search Product → Collect Prices → Compare → Analyze Deals
 - **Frontend:** HTML + CSS + vanilla JS
 - **Charts:** Chart.js (loaded via CDN)
 - **Data:** Realistic seeded sample data (see note below on going live)
+- **Authentication:** Flask sessions + Werkzeug password hashing
 
 ## Quick Setup
 
@@ -32,6 +42,8 @@ python app.py            # runs on http://localhost:5000
 ```
 
 Then open **http://localhost:5000** in your browser.
+
+Create an account from the sign-up page before browsing the protected product catalog. Run `seed_data.py` whenever you want to reset the demo catalog; existing user accounts are preserved.
 
 ## How the "Best Deal" Score Works
 
@@ -46,6 +58,16 @@ score = 0.45 * price_score      (cheaper = higher, normalized across stores)
 
 Out-of-stock offers get their score multiplied by 0.3 so they're still visible but rarely recommended. You can tune the `WEIGHTS` dict in `recommend.py` to change what matters most.
 
+## Main Routes
+
+| Route | Purpose |
+|---|---|
+| `/` | Searchable product catalog and category filters |
+| `/product/<id>` | Product details, specifications, offers, purchase links, chart, and alerts |
+| `/dashboard` | User wishlist and saved price alerts |
+| `/compare?ids=1,2,3` | Side-by-side comparison for up to three products |
+| `/login`, `/signup`, `/logout` | Authentication flow |
+
 ## Project Structure
 
 ```
@@ -57,12 +79,20 @@ smartbuy/
 ├── requirements.txt
 ├── README.md
 ├── templates/
-│   ├── index.html      # Search / browse page
-│   └── results.html    # Comparison table + chart + alert + discount calc
+│   ├── index.html      # Search, categories, wishlist, and compare controls
+│   ├── results.html    # Product details, specs, offers, chart, and alerts
+│   ├── dashboard.html  # Wishlist and alert dashboard
+│   ├── compare.html    # Side-by-side product comparison
+│   ├── login.html      # Sign-in page
+│   └── signup.html     # Account creation page
 └── static/
     ├── style.css
     └── script.js
 ```
+
+## Demo Data and Images
+
+The seed script creates **40 products across 9 categories**, five stores, current offers, ratings, discounts, and 31 days of price history. Product images are selected by exact product name, with category images used only for products added later without a mapping. Store buttons currently open store search pages using the product name.
 
 ## Going Live
 
@@ -72,7 +102,7 @@ Right now `seed_data.py` generates realistic sample prices/ratings/history so th
 2. On a schedule (cron job or Flask background task), write results into the `prices` table (upsert) and append a row to `price_history` for that day.
 3. Add a small worker that checks `price_alerts` against current prices and sends notifications when `current_price <= target_price`, then sets `triggered = 1`.
 
-The database schema (`database.py`) already supports all of this — no changes needed to the web app itself.
+The database schema (`database.py`) supports users, wishlists, alerts, product specifications, store URLs, current offers, and price history. Replace seeded values with verified store API or scraper data before production use.
 
 ## Supported Stores
 

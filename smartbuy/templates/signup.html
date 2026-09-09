@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create account — SmartBuy</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="auth-page">
+  <main class="auth-shell">
+    <section class="auth-intro">
+      <a class="brand-mark" href="{{ url_for('login') }}">🛒 SmartBuy</a>
+      <div>
+        <p class="eyebrow">Your buying edge</p>
+        <h1>Keep the best prices close.</h1>
+        <p class="auth-copy">Create an account to explore product comparisons and set up price-drop alerts in one place.</p>
+      </div>
+    </section>
+
+    <section class="auth-card">
+      <p class="eyebrow">Get started</p>
+      <h2>Create your account</h2>
+      <p class="auth-muted">It only takes a moment to get started.</p>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endwith %}
+      <form method="post" class="auth-form">
+        <label for="name">Your name</label>
+        <input id="name" name="name" type="text" autocomplete="name" placeholder="Alex Johnson" required>
+        <label for="email">Email address</label>
+        <input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required>
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="new-password" placeholder="At least 6 characters" minlength="6" required>
+        <button type="submit">Create account <span aria-hidden="true">→</span></button>
+      </form>
+      <p class="auth-switch">Already have an account? <a href="{{ url_for('login') }}">Sign in</a></p>
+    </section>
+  </main>
+</body>
+</html>

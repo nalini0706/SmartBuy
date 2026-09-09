@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My space — SmartBuy</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="hero small dashboard-hero">
+    <div class="container">
+      <div class="topbar">
+        <a href="{{ url_for('index') }}" class="back-link"><span aria-hidden="true">←</span> Back to deals</a>
+        <div class="account-bar"><span>Hello, {{ session.get('user_name') }}</span><a href="{{ url_for('logout') }}">Sign out</a></div>
+      </div>
+      <p class="eyebrow hero-eyebrow">Your shopping space</p>
+      <h1>My dashboard</h1>
+      <p class="tagline">Keep your saved products and price alerts in one place.</p>
+    </div>
+  </header>
+
+  <main class="container dashboard-main">
+    <section class="dashboard-section">
+      <div class="section-heading-row"><div><p class="eyebrow">Saved for later</p><h2 class="section-title">My wishlist</h2></div><span class="result-count">{{ wishlist|length }} saved</span></div>
+      {% if wishlist %}
+      <div class="product-grid dashboard-grid">
+        {% for p in wishlist %}
+        <a class="product-card" href="{{ url_for('product_detail', product_id=p.product_id) }}">
+          <div class="product-image"><img src="{{ p.image_url }}" alt="{{ p.name }}" loading="lazy"><span class="image-category">{{ p.category }}</span></div>
+          <div class="product-card-body"><div class="name">{{ p.name }}</div><div class="card-rating">★ {{ p.rating }}</div><div class="card-price">₹{{ "{:,.0f}".format(p.best_price) }}</div></div>
+        </a>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state"><strong>Your wishlist is empty</strong><span>Save products from the deals page to keep an eye on them.</span><a href="{{ url_for('index') }}">Browse products →</a></div>
+      {% endif %}
+    </section>
+
+    <section class="dashboard-section">
+      <div class="section-heading-row"><div><p class="eyebrow">Never miss a drop</p><h2 class="section-title">Price alerts</h2></div><span class="result-count">{{ alerts|length }} active</span></div>
+      {% if alerts %}
+      <div class="alert-list">
+        {% for alert in alerts %}
+        <div class="alert-item"><div><strong>{{ alert.name }}</strong><span>Target price ₹{{ "{:,.0f}".format(alert.target_price) }}</span></div><span class="alert-status {{ 'triggered' if alert.triggered else '' }}">{{ 'Triggered' if alert.triggered else 'Watching' }}</span></div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state compact"><strong>No price alerts yet</strong><span>Open a product and set a target price to start watching.</span></div>
+      {% endif %}
+    </section>
+  </main>
+</body>
+</html>

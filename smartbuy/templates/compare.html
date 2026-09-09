@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compare products — SmartBuy</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="hero small dashboard-hero">
+    <div class="container">
+      <div class="topbar"><a href="{{ url_for('index') }}" class="back-link"><span aria-hidden="true">←</span> Back to deals</a><div class="account-bar"><span>Hello, {{ session.get('user_name') }}</span><a href="{{ url_for('dashboard') }}">My space</a></div></div>
+      <p class="eyebrow hero-eyebrow">Side by side</p><h1>Compare products</h1><p class="tagline">See the important differences before you decide.</p>
+    </div>
+  </header>
+  <main class="container compare-main">
+    {% if comparisons %}
+    <div class="compare-grid">
+      {% for item in comparisons %}
+      <article class="compare-card">
+        <div class="compare-image"><img src="{{ item.product.image_url }}" alt="{{ item.product.name }}"><span>{{ item.product.category }}</span></div>
+        <div class="compare-body"><h2>{{ item.product.name }}</h2><div class="card-rating">★ {{ item.product.rating }}</div><p class="compare-label">Best current price</p><strong class="compare-price">₹{{ "{:,.0f}".format(item.best.current_price) if item.best else "N/A" }}</strong><p class="compare-store">at {{ item.best.store_name if item.best else "No offers" }}</p><a class="compare-detail-link" href="{{ url_for('product_detail', product_id=item.product.product_id) }}">View full details →</a></div>
+      </article>
+      {% endfor %}
+    </div>
+    <section class="comparison-table-section"><p class="eyebrow">At a glance</p><h2 class="section-title">Store and price comparison</h2><div class="table-wrap"><table class="price-table"><thead><tr><th>Product</th><th>Best store</th><th>Best price</th><th>Deal score</th></tr></thead><tbody>{% for item in comparisons %}<tr><td>{{ item.product.name }}</td><td>{{ item.best.store_name if item.best else "—" }}</td><td class="price-cell">₹{{ "{:,.0f}".format(item.best.current_price) if item.best else "—" }}</td><td>{{ item.best.deal_score if item.best else "—" }}</td></tr>{% endfor %}</tbody></table></div></section>
+    {% else %}
+    <div class="empty-state"><strong>Select products to compare</strong><span>Choose up to three products from the homepage.</span><a href="{{ url_for('index') }}">Browse products →</a></div>
+    {% endif %}
+  </main>
+</body>
+</html>

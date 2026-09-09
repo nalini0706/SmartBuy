@@ -10,8 +10,14 @@
 <body>
   <header class="hero small">
     <div class="container">
-      <a href="/" class="back-link">← Back to search</a>
-      <h1>{{ product.image_emoji }} {{ product.name }}</h1>
+      <div class="topbar">
+        <a href="/" class="back-link"><span aria-hidden="true">←</span> Back to all deals</a>
+        <div class="account-bar">
+          <span>Hello, {{ session.get('user_name') }}</span>
+          <a href="{{ url_for('logout') }}">Sign out</a>
+        </div>
+      </div>
+      <h1>{{ product.name }}</h1>
       <p class="tagline">{{ product.category }}</p>
     </div>
   </header>
@@ -20,6 +26,31 @@
 
     {% set best_offer = offers | selectattr("is_best_deal") | list | first %}
     {% set cheapest = offers | selectattr("is_best_price") | list | first %}
+
+    <section class="product-showcase">
+      <div class="product-art"><img src="{{ product.image_url }}" alt="{{ product.name }}"></div>
+      <div class="product-copy">
+        <span class="product-kicker">{{ product.category }} · SmartBuy selection</span>
+        <h2>{{ product.name }}</h2>
+        <p>{{ product.description }}</p>
+        <div class="product-meta">
+          <span>✓ Compared across 5 stores</span>
+          <span>✓ Deal score included</span>
+          <span>✓ Price history tracked</span>
+        </div>
+      </div>
+    </section>
+
+    {% if product.specs %}
+    <section class="specs-section">
+      <div><p class="eyebrow">Know before you buy</p><h2 class="section-title">Key specifications</h2></div>
+      <div class="spec-grid">
+        {% for label, value in product.specs.items() %}
+        <div class="spec-item"><span>{{ label }}</span><strong>{{ value }}</strong></div>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
 
     <div class="highlight-row">
       <div class="highlight-card price">
@@ -59,6 +90,7 @@
           <th>Rating</th>
           <th>Delivery</th>
           <th>Deal Score</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -84,6 +116,7 @@
           <td>{{ o.rating }} ★ <span class="reviews">({{ o.review_count }})</span></td>
           <td>{{ o.delivery_days }} day{{ 's' if o.delivery_days != 1 else '' }}</td>
           <td><div class="score-bar"><div class="score-fill" style="width:{{ o.deal_score }}%"></div></div> {{ o.deal_score }}</td>
+          <td>{% if o.store_url %}<a class="store-link" href="{{ o.store_url }}" target="_blank" rel="noopener">Visit store ↗</a>{% endif %}</td>
         </tr>
         {% endfor %}
       </tbody>
