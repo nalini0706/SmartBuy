@@ -53,7 +53,7 @@ async function runSearch() {
     a.innerHTML = `
       ${badge}
       <button class="wishlist-toggle" data-product-id="${p.product_id}" aria-label="Add to wishlist">♡</button>
-      <div class="product-image"><img src="${p.image_url}" alt="${p.name}" loading="lazy"><span class="image-category">${p.category}</span></div>
+      <div class="product-image"><img src="${p.image_url}" data-fallback="${p.image_fallback}" onerror="this.onerror=null;this.src=this.dataset.fallback" alt="${p.name}" loading="lazy"><span class="image-category">${p.category}</span></div>
       <div class="product-card-body">
         <div class="name">${p.name}</div>
         <div class="card-rating">★ ${p.rating} <span>· Compare across stores</span></div>

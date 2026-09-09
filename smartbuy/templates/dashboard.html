@@ -26,7 +26,7 @@
       <div class="product-grid dashboard-grid">
         {% for p in wishlist %}
         <a class="product-card" href="{{ url_for('product_detail', product_id=p.product_id) }}">
-          <div class="product-image"><img src="{{ p.image_url }}" alt="{{ p.name }}" loading="lazy"><span class="image-category">{{ p.category }}</span></div>
+          <div class="product-image"><img src="{{ p.image_url }}" data-fallback="{{ p.image_fallback }}" onerror="this.onerror=null;this.src=this.dataset.fallback" alt="{{ p.name }}" loading="lazy"><span class="image-category">{{ p.category }}</span></div>
           <div class="product-card-body"><div class="name">{{ p.name }}</div><div class="card-rating">★ {{ p.rating }}</div><div class="card-price">₹{{ "{:,.0f}".format(p.best_price) }}</div></div>
         </a>
         {% endfor %}

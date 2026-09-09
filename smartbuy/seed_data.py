@@ -89,6 +89,21 @@ def _specifications(name, category):
     return json.dumps(specs)
 
 
+def _description(name, category):
+    descriptions = {
+        "Smartphones": "A modern smartphone with a bright display, dependable battery life, and the everyday performance needed for work, photos, and entertainment.",
+        "Laptops": "A capable laptop designed for productive work, smooth multitasking, and reliable everyday performance in a portable format.",
+        "Audio": "A versatile audio pick for clear listening, comfortable use, and dependable wireless performance throughout the day.",
+        "TVs": "A high-quality home entertainment display with sharp detail, vivid color, and smart features for streaming and everyday viewing.",
+        "Cameras": "A compact imaging product for capturing detailed photos and steady video, with useful connectivity for sharing content.",
+        "Gaming": "A performance-focused gaming product built for responsive play, immersive entertainment, and long sessions at home.",
+        "Tablets & E-readers": "A lightweight screen for reading, streaming, browsing, and focused everyday tasks with an easy-to-carry design.",
+        "Wearables": "A practical wearable for tracking activity, staying connected, and checking useful information at a glance.",
+        "Home": "A convenient home product designed to make everyday routines easier with practical controls and dependable performance.",
+    }
+    return descriptions.get(category, f"A carefully selected {category.lower()} product with useful features and dependable everyday value.")
+
+
 def _store_url(store_name, product_name):
     query = quote_plus(product_name)
     domains = {
@@ -118,8 +133,8 @@ def seed():
 
     for name, category, emoji, base_price in PRODUCTS:
         cur.execute(
-            "INSERT INTO products (name, category, image_emoji, specs) VALUES (?, ?, ?, ?)",
-            (name, category, emoji, _specifications(name, category)),
+            "INSERT INTO products (name, category, image_emoji, description, specs) VALUES (?, ?, ?, ?, ?)",
+            (name, category, emoji, _description(name, category), _specifications(name, category)),
         )
         product_id = cur.lastrowid
 

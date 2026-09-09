@@ -68,6 +68,7 @@ def decorate_products(rows):
     for row in rows:
         product = dict(row)
         product["image_url"] = product_image_url(product["category"], product["name"])
+        product["image_fallback"] = category_image_url(product["category"])
         product["best_price"] = product["best_price"] or 0
         product["rating"] = round(product["rating"] or 0, 1)
         product["discount_pct"] = int(product["discount_pct"] or 0)
@@ -103,9 +104,9 @@ def product_image_url(category, product_name=None):
         "Canon EOS R50": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32",
         "GoPro HERO12 Black": "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f",
         "Sony Alpha A6400": "https://images.unsplash.com/photo-1502920917128-1aa500764cbd",
-        "DJI Osmo Pocket 3": "https://images.unsplash.com/photo-1495701002650-27a7f8b9f9b5",
+        "DJI Osmo Pocket 3": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32",
         "PlayStation 5 Slim": "https://images.unsplash.com/photo-1606813907291-d86efa9b94db",
-        "ASUS ROG Gaming Laptop": "https://images.unsplash.com/photo-1593642702909-dec73df255d7",
+        "ASUS ROG Gaming Laptop": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853",
         "Xbox Series X": "https://images.unsplash.com/photo-1621259182978-fbf93132d53d",
         "Nintendo Switch OLED": "https://images.unsplash.com/photo-1578303512597-81e6cc155b3e",
         "Kindle Paperwhite": "https://images.unsplash.com/photo-1544947950-fa07a98d237f",
@@ -131,15 +132,34 @@ def product_image_url(category, product_name=None):
         "Wearables": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=900&q=90",
     }
     category_text = (category or "").strip().lower()
-    image_url = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e"
+    image_url = category_image_url(category)
     for mapped_name, candidate_url in product_images.items():
         if mapped_name == product_name:
-            return f"{candidate_url}?auto=format&fit=crop&w=900&q=90&v=4"
+            return f"{candidate_url}?auto=format&fit=crop&w=900&q=90&v=5"
     for category_name, candidate_url in category_images.items():
         if category_text == category_name.lower() or category_name.lower() in category_text:
             image_url = candidate_url
             break
-    return f"{image_url}&v=3"
+    return f"{image_url}&v=5"
+
+
+def category_image_url(category):
+    category_images = {
+        "Smartphones": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=900&q=90",
+        "Laptops": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=900&q=90",
+        "Audio": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=90",
+        "TVs": "https://images.unsplash.com/photo-1593784991095-a205069470b6?auto=format&fit=crop&w=900&q=90",
+        "Cameras": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=900&q=90",
+        "Gaming": "https://images.unsplash.com/photo-1605901309584-818e25960a8f?auto=format&fit=crop&w=900&q=90",
+        "Home": "https://images.unsplash.com/photo-1581571937662-811f2e7e7e5f?auto=format&fit=crop&w=900&q=90",
+        "Tablets & E-readers": "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?auto=format&fit=crop&w=900&q=90",
+        "Wearables": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=900&q=90",
+    }
+    category_text = (category or "").strip().lower()
+    for category_name, candidate_url in category_images.items():
+        if category_text == category_name.lower() or category_name.lower() in category_text:
+            return candidate_url
+    return category_images["Audio"]
 
 
 def get_offers_for_product(product_id):
@@ -185,6 +205,8 @@ def get_product(product_id):
         return None
     product = dict(row)
     product["image_url"] = product_image_url(product["category"], product["name"])
+    product["image_fallback"] = category_image_url(product["category"])
+    product["description"] = product["description"] or f"A thoughtfully selected {product['category'].lower()} product for everyday use, with strong value across trusted stores."
     try:
         product["specs"] = json.loads(product["specs"] or "{}")
     except (TypeError, ValueError):

@@ -92,7 +92,7 @@ smartbuy/
 
 ## Demo Data and Images
 
-The seed script creates **40 products across 9 categories**, five stores, current offers, ratings, discounts, and 31 days of price history. Product images are selected by exact product name, with category images used only for products added later without a mapping. Store buttons currently open store search pages using the product name.
+The seed script creates **40 products across 9 categories**, five stores, current offers, ratings, discounts, specifications, descriptions, and 31 days of price history. Product images are selected by exact product name, with category images used only for products added later without a mapping. If an external image is unavailable, the UI automatically falls back to a valid category product image. Store buttons currently open store search pages using the product name.
 
 ## Going Live
 

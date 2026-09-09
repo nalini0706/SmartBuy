@@ -28,7 +28,7 @@
     {% set cheapest = offers | selectattr("is_best_price") | list | first %}
 
     <section class="product-showcase">
-      <div class="product-art"><img src="{{ product.image_url }}" alt="{{ product.name }}"></div>
+      <div class="product-art"><img src="{{ product.image_url }}" data-fallback="{{ product.image_fallback }}" onerror="this.onerror=null;this.src=this.dataset.fallback" alt="{{ product.name }}"></div>
       <div class="product-copy">
         <span class="product-kicker">{{ product.category }} · SmartBuy selection</span>
         <h2>{{ product.name }}</h2>

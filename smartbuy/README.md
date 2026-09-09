@@ -20,6 +20,7 @@ Flow: **User → Search Product → Collect Prices → Compare → Analyze Deals
 | 🛍️ Store purchase links | Five store search links per product |
 | 🖼️ Product-specific catalog photos | Exact product-name image mapping with category fallback |
 | 📦 40 products across 9 categories | Seeded by `seed_data.py` |
+| 🛡️ Image fallback and descriptions | Broken external images recover automatically; all products have descriptions |
 
 ## Tech stack
 
